@@ -67,9 +67,17 @@ img {
 </div>
 
 
-<p>Background</p>
+<div id="background" class="section level3">
+<h3>Background</h3>
 <p>Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: <a href="http://groupware.les.inf.puc-rio.br/har" class="uri">http://groupware.les.inf.puc-rio.br/har</a> (see the section on the Weight Lifting Exercise Dataset).</p>
-<p>Approach</p>
+</div>
+<div id="data" class="section level3">
+<h3>Data</h3>
+<p>training <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv" class="uri">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv</a></p>
+<p>test: <a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv" class="uri">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv</a></p>
+</div>
+<div id="approach" class="section level3">
+<h3>Approach</h3>
 <p>For this course project I analyzed the provided data to determine what activity an individual performs. To do this I made use of multiple R packages like caret and randomForest. You can view them below. Notice: if you want to run this code on your own machine, make sure these packages are installed! I have also made use of a seed value to make the results reproducible.</p>
 <pre class="r"><code>library(caret)</code></pre>
 <pre><code>## Loading required package: lattice
@@ -81,185 +89,58 @@ img {
 <pre><code>## Loading required package: foreach
 ## Loading required package: iterators
 ## Loading required package: parallel</code></pre>
-<pre class="r"><code>set.seed(2104)</code></pre>
-<p>First, I loaded the data both from the provided training and test data provided by COURSERA. Some values contained a “#DIV/0!” that I replaced with an NA value.</p>
+<pre class="r"><code>set.seed(2104)
+options(warn=-1)</code></pre>
+<p>First, I loaded the data both from the provided training and test data provided by COURSERA (see links above) Some values contained a “#DIV/0!” that I replaced with an NA value.</p>
 <pre class="r"><code>training_data &lt;- read.csv(&quot;pml-training.csv&quot;, na.strings=c(&quot;#DIV/0!&quot;) )
 evaluation_data &lt;- read.csv(&quot;pml-testing.csv&quot;, na.strings=c(&quot;#DIV/0!&quot;) )</code></pre>
-<p>I also casted all columns 8 to the end to be numeric.</p>
-<pre class="r"><code>for(i in c(8:ncol(training_data)-1)) {training_data[,i] = as.numeric(as.character(training_data[,i]))}</code></pre>
-<pre><code>## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion</code></pre>
-<pre class="r"><code>for(i in c(8:ncol(evaluation_data)-1)) {evaluation_data[,i] = as.numeric(as.character(evaluation_data[,i]))}</code></pre>
-<pre><code>## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion
-## Warning: NAs introduced by coercion</code></pre>
-<p>Some columns were mostly blank. These did not contribute well to the prediction. I chose a feature set that only included complete columns. We also remove user name, timestamps and windows.</p>
-<p>Determine and display out feature set.</p>
+<p>Set all columns from the 7th to the end to be numeric.</p>
+<pre class="r"><code>for(i in c(7:ncol(training_data)-1)) {training_data[,i] = as.numeric(as.character(training_data[,i]))}
+
+for(i in c(7:ncol(evaluation_data)-1)) {evaluation_data[,i] = as.numeric(as.character(evaluation_data[,i]))}</code></pre>
+</div>
+<div id="clean-training-data-and-split-it" class="section level3">
+<h3>Clean training data and split it</h3>
+<p>Some columns were mostly blank, so these do not contribute well to the prediction. I chose a feature set that only included complete columns. Als the user name, timestamps and windows are removed.<br />Determine and display feature set:</p>
 <pre class="r"><code>feature_set &lt;- colnames(training_data[colSums(is.na(training_data)) == 0])[-(1:7)]
 model_data &lt;- training_data[feature_set]
 feature_set</code></pre>
-<pre><code>##  [1] &quot;roll_belt&quot;            &quot;pitch_belt&quot;           &quot;yaw_belt&quot;            
-##  [4] &quot;total_accel_belt&quot;     &quot;gyros_belt_x&quot;         &quot;gyros_belt_y&quot;        
-##  [7] &quot;gyros_belt_z&quot;         &quot;accel_belt_x&quot;         &quot;accel_belt_y&quot;        
-## [10] &quot;accel_belt_z&quot;         &quot;magnet_belt_x&quot;        &quot;magnet_belt_y&quot;       
-## [13] &quot;magnet_belt_z&quot;        &quot;roll_arm&quot;             &quot;pitch_arm&quot;           
-## [16] &quot;yaw_arm&quot;              &quot;total_accel_arm&quot;      &quot;gyros_arm_x&quot;         
-## [19] &quot;gyros_arm_y&quot;          &quot;gyros_arm_z&quot;          &quot;accel_arm_x&quot;         
-## [22] &quot;accel_arm_y&quot;          &quot;accel_arm_z&quot;          &quot;magnet_arm_x&quot;        
-## [25] &quot;magnet_arm_y&quot;         &quot;magnet_arm_z&quot;         &quot;roll_dumbbell&quot;       
-## [28] &quot;pitch_dumbbell&quot;       &quot;yaw_dumbbell&quot;         &quot;total_accel_dumbbell&quot;
-## [31] &quot;gyros_dumbbell_x&quot;     &quot;gyros_dumbbell_y&quot;     &quot;gyros_dumbbell_z&quot;    
-## [34] &quot;accel_dumbbell_x&quot;     &quot;accel_dumbbell_y&quot;     &quot;accel_dumbbell_z&quot;    
-## [37] &quot;magnet_dumbbell_x&quot;    &quot;magnet_dumbbell_y&quot;    &quot;magnet_dumbbell_z&quot;   
-## [40] &quot;roll_forearm&quot;         &quot;pitch_forearm&quot;        &quot;yaw_forearm&quot;         
-## [43] &quot;total_accel_forearm&quot;  &quot;gyros_forearm_x&quot;      &quot;gyros_forearm_y&quot;     
-## [46] &quot;gyros_forearm_z&quot;      &quot;accel_forearm_x&quot;      &quot;accel_forearm_y&quot;     
-## [49] &quot;accel_forearm_z&quot;      &quot;magnet_forearm_x&quot;     &quot;magnet_forearm_y&quot;    
-## [52] &quot;magnet_forearm_z&quot;     &quot;classe&quot;</code></pre>
-<p>We now have the model data built from our feature set.</p>
+<pre><code>##  [1] &quot;pitch_belt&quot;           &quot;yaw_belt&quot;             &quot;total_accel_belt&quot;    
+##  [4] &quot;gyros_belt_x&quot;         &quot;gyros_belt_y&quot;         &quot;gyros_belt_z&quot;        
+##  [7] &quot;accel_belt_x&quot;         &quot;accel_belt_y&quot;         &quot;accel_belt_z&quot;        
+## [10] &quot;magnet_belt_x&quot;        &quot;magnet_belt_y&quot;        &quot;magnet_belt_z&quot;       
+## [13] &quot;roll_arm&quot;             &quot;pitch_arm&quot;            &quot;yaw_arm&quot;             
+## [16] &quot;total_accel_arm&quot;      &quot;gyros_arm_x&quot;          &quot;gyros_arm_y&quot;         
+## [19] &quot;gyros_arm_z&quot;          &quot;accel_arm_x&quot;          &quot;accel_arm_y&quot;         
+## [22] &quot;accel_arm_z&quot;          &quot;magnet_arm_x&quot;         &quot;magnet_arm_y&quot;        
+## [25] &quot;magnet_arm_z&quot;         &quot;roll_dumbbell&quot;        &quot;pitch_dumbbell&quot;      
+## [28] &quot;yaw_dumbbell&quot;         &quot;total_accel_dumbbell&quot; &quot;gyros_dumbbell_x&quot;    
+## [31] &quot;gyros_dumbbell_y&quot;     &quot;gyros_dumbbell_z&quot;     &quot;accel_dumbbell_x&quot;    
+## [34] &quot;accel_dumbbell_y&quot;     &quot;accel_dumbbell_z&quot;     &quot;magnet_dumbbell_x&quot;   
+## [37] &quot;magnet_dumbbell_y&quot;    &quot;magnet_dumbbell_z&quot;    &quot;roll_forearm&quot;        
+## [40] &quot;pitch_forearm&quot;        &quot;yaw_forearm&quot;          &quot;total_accel_forearm&quot; 
+## [43] &quot;gyros_forearm_x&quot;      &quot;gyros_forearm_y&quot;      &quot;gyros_forearm_z&quot;     
+## [46] &quot;accel_forearm_x&quot;      &quot;accel_forearm_y&quot;      &quot;accel_forearm_z&quot;     
+## [49] &quot;magnet_forearm_x&quot;     &quot;magnet_forearm_y&quot;     &quot;magnet_forearm_z&quot;    
+## [52] &quot;classe&quot;</code></pre>
+<p>Create a training and testing set based on the model_data.</p>
 <pre class="r"><code>idx &lt;- createDataPartition(y=model_data$classe, p=0.75, list=FALSE )
 training &lt;- model_data[idx,]
 testing &lt;- model_data[-idx,]</code></pre>
-<p>We now build 5 random forests with 150 trees each. We make use of parallel processing to build this model. I found several examples of how to perform parallel processing with random forests in R, this provided a great speedup.</p>
+</div>
+<div id="random-forest-prediction-model" class="section level3">
+<h3>Random forest prediction model</h3>
+<p>We now build 6 random forests with 150 trees each. We make use of parallel processing to build this model. I found several examples of how to perform parallel processing with random forests in R, this provided a great speedup.</p>
 <pre class="r"><code>registerDoParallel()
 x &lt;- training[-ncol(training)]
 y &lt;- training$classe
 
 rf &lt;- foreach(ntree=rep(150, 6), .combine=randomForest::combine, .packages='randomForest') %dopar% {
-randomForest(x, y, ntree=ntree) 
+      randomForest(x, y, ntree=ntree) 
 }</code></pre>
 <p>Provide error reports for both training and test data.</p>
-<pre class="r"><code>predictions1 &lt;- predict(rf, newdata=training)
-confusionMatrix(predictions1,training$classe)</code></pre>
+<pre class="r"><code>predictionsTraining &lt;- predict(rf, newdata=training)
+confusionMatrix(predictionsTraining, training$classe)</code></pre>
 <pre><code>## Loading required namespace: e1071</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
@@ -292,17 +173,17 @@ confusionMatrix(predictions1,training$classe)</code></pre>
 ## Detection Rate          0.284    0.194    0.174    0.164    0.184
 ## Detection Prevalence    0.284    0.194    0.174    0.164    0.184
 ## Balanced Accuracy       1.000    1.000    1.000    1.000    1.000</code></pre>
-<pre class="r"><code>predictions2 &lt;- predict(rf, newdata=testing)
-confusionMatrix(predictions2,testing$classe)</code></pre>
+<pre class="r"><code>predictionsTesting &lt;- predict(rf, newdata=testing)
+confusionMatrix(predictionsTesting, testing$classe)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
 ##          A 1394    1    0    0    0
-##          B    0  946    4    0    0
-##          C    0    2  851    7    0
-##          D    0    0    0  797    3
-##          E    1    0    0    0  898
+##          B    0  945    5    0    0
+##          C    0    3  850    7    0
+##          D    0    0    0  796    1
+##          E    1    0    0    1  900
 ## 
 ## Overall Statistics
 ##                                         
@@ -317,18 +198,19 @@ confusionMatrix(predictions2,testing$classe)</code></pre>
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity             0.999    0.997    0.995    0.991    0.997
-## Specificity             1.000    0.999    0.998    0.999    1.000
-## Pos Pred Value          0.999    0.996    0.990    0.996    0.999
-## Neg Pred Value          1.000    0.999    0.999    0.998    0.999
+## Sensitivity             0.999    0.996    0.994    0.990    0.999
+## Specificity             1.000    0.999    0.998    1.000    1.000
+## Pos Pred Value          0.999    0.995    0.988    0.999    0.998
+## Neg Pred Value          1.000    0.999    0.999    0.998    1.000
 ## Prevalence              0.284    0.194    0.174    0.164    0.184
-## Detection Rate          0.284    0.193    0.174    0.163    0.183
-## Detection Prevalence    0.284    0.194    0.175    0.163    0.183
-## Balanced Accuracy       0.999    0.998    0.997    0.995    0.998</code></pre>
-<div id="conclusions-and-test-data-submit" class="section level2">
-<h2>Conclusions and Test Data Submit</h2>
-<p>As can be seen from the confusion matrix this model is very accurate. I did experiment with PCA and other models, but did not get as good of accuracy. Because my test data was around 99% accurate I expected nearly all of the submitted test cases to be correct. It turned out they were all correct.</p>
-<p>Prepare the submission. (using COURSERA provided code)</p>
+## Detection Rate          0.284    0.193    0.173    0.162    0.184
+## Detection Prevalence    0.284    0.194    0.175    0.163    0.184
+## Balanced Accuracy       0.999    0.997    0.996    0.995    0.999</code></pre>
+</div>
+<div id="conclusions-and-test-data-submit" class="section level3">
+<h3>Conclusions and Test Data Submit</h3>
+<p>As can be seen from the confusion matrix this model is quite accurate. I have done experiment with other models but the accuracy was worse. Because the test data was around 99% accurate I expected almost of the submitted test cases to be correct (they were all correct)</p>
+<p>Write the submission, using the provided code snippet.</p>
 <pre class="r"><code>pml_write_files = function(x){
   n = length(x)
   for(i in 1:n){
@@ -337,16 +219,9 @@ confusionMatrix(predictions2,testing$classe)</code></pre>
   }
 }
 
-
-x &lt;- evaluation_data
-x &lt;- x[feature_set[feature_set!='classe']]
-answers &lt;- predict(rf, newdata=x)
-
-answers</code></pre>
-<pre><code>##  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 
-##  B  A  B  A  A  E  D  B  A  A  B  C  B  A  E  E  A  B  B  B 
-## Levels: A B C D E</code></pre>
-<pre class="r"><code>pml_write_files(answers)</code></pre>
+evaluation_data &lt;- evaluation_data[feature_set[feature_set!='classe']]
+predictions &lt;- predict(rf, newdata=evaluation_data)
+pml_write_files(predictions)</code></pre>
 </div>
 
 

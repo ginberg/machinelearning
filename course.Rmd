@@ -1,19 +1,16 @@
----
-title: "Practical Machine Learning course project"
-author: "Ger Inberg"
-date: "22-02-2015"
----
+##Practical Machine Learning course project
 
-Background
+### Background
 
 Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset). 
 
-Data 
+### Data 
 
 training https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
+
 test: https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
 
-Approach
+### Approach
 
 For this course project I analyzed the provided data to determine what activity an individual performs.
 To do this I made use of multiple R packages like caret and randomForest. You can view them below. Notice: if you want to run this code on your own machine, make sure these packages are installed! 
@@ -36,18 +33,18 @@ training_data <- read.csv("pml-training.csv", na.strings=c("#DIV/0!") )
 evaluation_data <- read.csv("pml-testing.csv", na.strings=c("#DIV/0!") )
 ```
 
-I also casted all columns 8 to the end to be numeric.
+Set all columns from the 7th to the end to be numeric.
 
 ```{r}
-for(i in c(8:ncol(training_data)-1)) {training_data[,i] = as.numeric(as.character(training_data[,i]))}
+for(i in c(7:ncol(training_data)-1)) {training_data[,i] = as.numeric(as.character(training_data[,i]))}
 
-for(i in c(8:ncol(evaluation_data)-1)) {evaluation_data[,i] = as.numeric(as.character(evaluation_data[,i]))}
+for(i in c(7:ncol(evaluation_data)-1)) {evaluation_data[,i] = as.numeric(as.character(evaluation_data[,i]))}
 ```
 
-Some columns were mostly blank.  These did not contribute well to the prediction.  I chose a feature
-set that only included complete columns.  We also remove user name, timestamps and windows.  
-
-Determine and display out feature set.
+### Clean training data and split it
+Some columns were mostly blank, so these do not contribute well to the prediction.  I chose a feature
+set that only included complete columns.  Als the user name, timestamps and windows are removed.  
+Determine and display feature set:
 
 ```{r}
 feature_set <- colnames(training_data[colSums(is.na(training_data)) == 0])[-(1:7)]
@@ -55,13 +52,15 @@ model_data <- training_data[feature_set]
 feature_set
 ```
 
-We now have the model data built from our feature set.
+Create a training and testing set based on the model_data.
 
 ```{r}
 idx <- createDataPartition(y=model_data$classe, p=0.75, list=FALSE )
 training <- model_data[idx,]
 testing <- model_data[-idx,]
 ```
+
+### Random forest prediction model
 
 We now build 6 random forests with 150 trees each. We make use of parallel processing to build this
 model. I found several examples of how to perform parallel processing with random forests in R, this
@@ -82,15 +81,13 @@ Provide error reports for both training and test data.
 predictionsTraining <- predict(rf, newdata=training)
 confusionMatrix(predictionsTraining, training$classe)
 
-
 predictionsTesting <- predict(rf, newdata=testing)
 confusionMatrix(predictionsTesting, testing$classe)
 ```
 
-Conclusions and Test Data Submit
---------------------------------
+### Conclusions and Test Data Submit
 
-As can be seen from the confusion matrix this model is accurate. I have done experiment with other models but the accuracy was worse. Because the test data was around 99% accurate I expected almost of the submitted test cases to be correct (they 
+As can be seen from the confusion matrix this model is quite accurate. I have done experiment with other models but the accuracy was worse. Because the test data was around 99% accurate I expected almost of the submitted test cases to be correct (they 
 were all correct)
 
 Write the submission, using the provided code snippet.
@@ -104,12 +101,8 @@ pml_write_files = function(x){
   }
 }
 
-
-x <- evaluation_data
-x <- x[feature_set[feature_set!='classe']]
-predictions <- predict(rf, newdata=x)
-
+evaluation_data <- evaluation_data[feature_set[feature_set!='classe']]
+predictions <- predict(rf, newdata=evaluation_data)
 predictions
-
 pml_write_files(predictions)
 ```
